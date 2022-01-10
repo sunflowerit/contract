@@ -1,0 +1,57 @@
+<?xml version="1.0" ?>
+<odoo>
+    <record id="view_agreement_tree" model="ir.ui.view">
+        <field name="name">agreement.agreement.tree</field>
+        <field name="model">agreement.agreement</field>
+        <field name="arch" type="xml">
+            <tree string="Dynamic Agreements">
+                <field name="name" />
+                <field name="employee_id"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_agreement_form" model="ir.ui.view">
+        <field name="name">agreement.agreement.form</field>
+        <field name="model">agreement.agreement</field>
+        <field name="arch" type="xml">
+            <form string="Dynamic Agreement">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                        <group>
+                            <field name="employee_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="section" string="Sections">
+                            <field name="agreement_section_ids">
+                                <field name="sequence" widget="handle"/>
+                                <field name="name"/>
+                                <field name="title"/>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" />
+                    <field name="activity_ids" widget="mail_activity" />
+                    <field name="message_ids" widget="mail_thread" />
+                </div>
+            </form>
+        </field>
+    </record>
+    <record id="action_agreement_agreement" model="ir.actions.act_window">
+        <field name="name">Agreements</field>
+        <field name="res_model">agreement.agreement</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem
+        id="menu_agreement"
+        name="Agreements"
+        parent="menu_agreement_dynamic"
+        sequence="1"
+        action="action_agreement_agreement"
+    />
+</odoo>

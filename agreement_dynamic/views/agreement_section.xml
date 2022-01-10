@@ -1,0 +1,74 @@
+<?xml version="1.0" ?>
+<odoo>
+    <record id="view_agreement_section_tree" model="ir.ui.view">
+        <field name="name">agreement.section.tree</field>
+        <field name="model">agreement.section</field>
+        <field name="arch" type="xml">
+            <tree string="Agreement Section">
+                <field name="sequence"/>
+                <field name="name" />
+                <field name="title"/>
+                <field name="agreement_id"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_agreement_section_form" model="ir.ui.view">
+        <field name="name">agreement.section.form</field>
+        <field name="model">agreement.section</field>
+        <field name="arch" type="xml">
+            <form string="Agreement Section">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" />
+                        <h1>
+                            <field name="name" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="title" />
+                            <field name="agreement_id" />
+                        </group>
+                        <group>
+                            <field name="sequence" />
+                        </group>
+                    </group>
+                    <field name="content" widget="html" />
+                    <group class="oe_edit_only">
+                        <group>
+                            <field
+                                name="field_id"
+                                domain="[('model_id', '=', active_model),
+                                            ('ttype', '!=', 'one2many'),
+                                            ('ttype', '!=', 'many2many')]"
+                            />
+                            <field name="sub_object_id" readonly="1" />
+                            <field
+                                name="sub_model_object_field_id"
+                                domain="[('model_id', '=', sub_object_id),
+                                            ('ttype', '!=', 'one2many'),
+                                            ('ttype', '!=', 'many2many')]"
+                                attrs="{'readonly':[('sub_object_id', '=', False)],
+                                           'required':[('sub_object_id', '!=', False)]}"
+                            />
+                            <field name="default_value" />
+                            <field name="copyvalue" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_agreement_section" model="ir.actions.act_window">
+        <field name="name">Agreement Sections</field>
+        <field name="res_model">agreement.section</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem
+        id="menu_agreement_section"
+        name="Sections"
+        parent="menu_agreement_dynamic"
+        sequence="2"
+        action="action_agreement_section"
+    />
+</odoo>
