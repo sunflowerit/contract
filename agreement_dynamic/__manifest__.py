@@ -16,11 +16,9 @@
     ],
     "data": [
         "security/ir.model.access.csv",
-        "views/menu.xml",
         "views/agreement.xml",
         "views/agreement_section.xml",
         "report/agreement_dynamic_report.xml",
-       # "views/agreement_template.xml",
     ],
     "installable": True,
 }
