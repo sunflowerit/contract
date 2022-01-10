@@ -17,21 +17,10 @@
                         <div class="page">
                             <h1 t-field="doc.name" />
                             <h2>Agreement</h2>
-                            <h3>Sections</h3>
-                            <table class="table table-condensed">
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <ol>
-                                                <li t-foreach="doc.agreement_section_ids" t-as="s">
-                                                    <t t-if="s.title"><h3 t-field="s.title" /></t>
-                                                    <p t-field="s.dynamic_content" />
-                                                </li>
-                                            </ol>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <h3>Content</h3>
+                            <t t-foreach="doc.section_ids" t-as="s">
+                            <t t-raw="s.dynamic_content" />
+                            </t>
                         </div>
                     </t>
                 </t>
