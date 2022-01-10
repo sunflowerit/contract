@@ -30,6 +30,8 @@ class Agreement(models.Model):
         for this in self:
             if this.resource_ref:
                 this.res_id = this.resource_ref.id
-                this.model_id = self.env[this.resource_ref._name].id
+                this.model_id = self.env['ir.model'].search([
+                    ('model', '=', this.resource_ref._name)
+                ], limit=1).id
 
     section_ids = fields.One2many('agreement.section', 'agreement_id')

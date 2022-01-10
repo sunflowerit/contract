@@ -2,20 +2,11 @@
 <odoo>
     <record id="agreement_dynamic_document" model="ir.actions.report">
         <field name="name">Agreement Dynamic</field>
-        <field name="model">agreement.agreement</field>
-        <field name="binding_model_id" ref="model_agreement_agreement" />
+        <field name="model">agreement</field>
+        <field name="binding_model_id" ref="agreement.model_agreement" />
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">agreement_dynamic.report_agreement_dynamic_document</field>
         <field name="report_file">agreement_dynamic.report_agreement_dynamic_document</field>
-        <field name="binding_view_types">list,form</field>
-    </record>
-    <record id="agreement_dynamic_document_preview" model="ir.actions.report">
-        <field name="name">Agreement Dynamic Preview</field>
-        <field name="model">agreement.agreement</field>
-        <field name="binding_model_id" ref="model_agreement_agreement" />
-        <field name="report_type">qweb-html</field>
-        <field name="report_name">agreement_legal.report_agreement_document</field>
-        <field name="report_file">agreement_legal.report_agreement_document</field>
         <field name="binding_view_types">list,form</field>
     </record>
     <template id="report_agreement_dynamic_document">
@@ -41,7 +32,6 @@
                                     </tr>
                                 </tbody>
                             </table>
-
                         </div>
                     </t>
                 </t>

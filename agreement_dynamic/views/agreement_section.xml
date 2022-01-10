@@ -7,7 +7,6 @@
             <tree string="Agreement Section">
                 <field name="sequence"/>
                 <field name="name" />
-                <field name="title"/>
                 <field name="agreement_id"/>
             </tree>
         </field>
@@ -26,7 +25,6 @@
                     </div>
                     <group>
                         <group>
-                            <field name="title" />
                             <field name="agreement_id" />
                         </group>
                         <group>
@@ -59,16 +57,4 @@
             </form>
         </field>
     </record>
-    <record id="action_agreement_section" model="ir.actions.act_window">
-        <field name="name">Agreement Sections</field>
-        <field name="res_model">agreement.section</field>
-        <field name="view_mode">tree,form</field>
-    </record>
-    <menuitem
-        id="menu_agreement_section"
-        name="Sections"
-        parent="menu_agreement_dynamic"
-        sequence="2"
-        action="action_agreement_section"
-    />
 </odoo>

@@ -8,7 +8,6 @@ class AgreementSection(models.Model):
     _order = "sequence"
 
     name = fields.Char("Name", required=True)
-    title = fields.Char("Title")
     sequence = fields.Integer("Sequence", default=10)
     content = fields.Html("Content")
     dynamic_content = fields.Html(
@@ -16,7 +15,9 @@ class AgreementSection(models.Model):
         string="Dynamic Content",
     )
     agreement_id = fields.Many2one(
-        "agreement.agreement", string="Agreement", ondelete="cascade")
+        "agreement", string="Agreement", ondelete="cascade")
+    resource_ref = fields.Reference(related="agreement_id.resource_ref")
+    resource_ref_model_id = fields.Many2one("ir.model", related="agreement_id.model_id")
 
     # Dynamic field editor
     field_id = fields.Many2one("ir.model.fields", string="Field")
