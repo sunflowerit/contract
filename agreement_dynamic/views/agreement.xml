@@ -5,15 +5,15 @@
         <field name="model">agreement</field>
         <field name="inherit_id" ref="agreement.agreement_form" />
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='domain']" position="after">
+                <field name="resource_ref" />
+            </xpath>
             <xpath expr="//notebook" position="inside">
                 <page name="dynamic_content" string="Dynamic content">
-                    <group>
-                        <field name="resource_ref"/>
-                    </group>
                     <field name="section_ids">
                         <tree>
-                            <field name="sequence" widget="handle"/>
-                            <field name="name"/>
+                            <field name="sequence" widget="handle" />
+                            <field name="name" />
                         </tree>
                         <form>
                             <sheet>
@@ -26,7 +26,7 @@
                                 <field name="content" widget="html" />
                                 <group class="oe_edit_only">
                                     <group>
-                                        <field name="agreement_id" invisible="1"/>
+                                        <field name="agreement_id" invisible="1" />
                                         <field name="resource_ref_model_id" />
                                         <field
                                             name="field_id"
