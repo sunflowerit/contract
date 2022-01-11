@@ -1,0 +1,12 @@
+---
+odoo/addons:
+    - "*"
+
+odoo/odoo/addons:
+    - "*"
+
+OCA/web:
+    - "*"
+
+OCA/contract:
+    - "*"
