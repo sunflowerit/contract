@@ -5,8 +5,25 @@
         <field name="model">agreement</field>
         <field name="binding_model_id" ref="agreement.model_agreement" />
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">agreement_dynamic.report_agreement_dynamic_document</field>
-        <field name="report_file">agreement_dynamic.report_agreement_dynamic_document</field>
+        <field
+            name="report_name"
+        >agreement_dynamic.report_agreement_dynamic_document</field>
+        <field
+            name="report_file"
+        >agreement_dynamic.report_agreement_dynamic_document</field>
+        <field name="binding_view_types">list,form</field>
+    </record>
+    <record id="agreement_dynamic_document_preview" model="ir.actions.report">
+        <field name="name">Agreement Dynamic Preview</field>
+        <field name="model">agreement</field>
+        <field name="binding_model_id" ref="agreement.model_agreement" />
+        <field name="report_type">qweb-html</field>
+        <field
+            name="report_name"
+        >agreement_dynamic.report_agreement_dynamic_document</field>
+        <field
+            name="report_file"
+        >agreement_dynamic.report_agreement_dynamic_document</field>
         <field name="binding_view_types">list,form</field>
     </record>
     <template id="report_agreement_dynamic_document">
@@ -19,7 +36,7 @@
                             <h2>Agreement</h2>
                             <h3>Content</h3>
                             <t t-foreach="doc.section_ids" t-as="s">
-                            <t t-raw="s.dynamic_content" />
+                                <t t-raw="s.dynamic_content" />
                             </t>
                         </div>
                     </t>

@@ -7,6 +7,13 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='domain']" position="after">
                 <field name="resource_ref" />
+                <button
+                    name="%(agreement_dynamic_document_preview)d"
+                    string="Preview"
+                    type="action"
+                    class="oe_highlight"
+                    attrs="{'invisible':[('resource_ref', '=', False)]}"
+                />
             </xpath>
             <xpath expr="//notebook" position="inside">
                 <page name="dynamic_content" string="Dynamic content">

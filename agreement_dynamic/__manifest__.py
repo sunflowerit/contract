@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2018 Sunflower IT <http://sunflowerweb.nl>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
@@ -10,15 +9,12 @@
     "website": "https://sunflowerweb.nl",
     "license": "AGPL-3",
     "summary": "Dynamic Agreement Builder",
-    "depends": [
-        'agreement',
-        'hr'
-    ],
+    "depends": ["agreement", "hr"],
     "data": [
         "security/ir.model.access.csv",
+        "report/agreement_dynamic_report.xml",
         "views/agreement.xml",
         "views/agreement_section.xml",
-        "report/agreement_dynamic_report.xml",
     ],
     "installable": True,
 }
