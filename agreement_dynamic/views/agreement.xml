@@ -18,9 +18,10 @@
             <xpath expr="//notebook" position="inside">
                 <page name="dynamic_content" string="Dynamic content">
                     <field name="section_ids">
-                        <tree>
+                        <tree decoration-bf="is_paragraph">
                             <field name="sequence" widget="handle" />
                             <field name="name" />
+                            <field name="is_paragraph" invisible="1" />
                         </tree>
                         <form>
                             <sheet>
@@ -33,6 +34,7 @@
                                 <field name="content" widget="html" />
                                 <group class="oe_edit_only">
                                     <group>
+                                        <field name="is_paragraph" />
                                         <field name="agreement_id" invisible="1" />
                                         <field name="resource_ref_model_id" />
                                         <field

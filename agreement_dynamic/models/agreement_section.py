@@ -24,6 +24,9 @@ class AgreementSection(models.Model):
     sub_model_object_field_id = fields.Many2one("ir.model.fields", string="Sub-field")
     default_value = fields.Char("Default Value")
     copyvalue = fields.Char("Placeholder Expression")
+    is_paragraph = fields.Boolean(
+        default=True, string="Paragraph", help="To highlight lines"
+    )
 
     @api.onchange("field_id", "sub_model_object_field_id", "default_value")
     def onchange_copyvalue(self):
