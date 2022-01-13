@@ -1,5 +1,11 @@
 from odoo import api, fields, models
 
+# Store expressions for editing HTML
+# after rendering
+POST_RENDERING_EXPRESSIONS = {
+    "--page": "<p style='page-break-after:always;'/>",
+}
+
 
 class AgreementSection(models.Model):
     _name = "agreement.section"
@@ -55,10 +61,19 @@ class AgreementSection(models.Model):
             content = MailTemplates._render_template(
                 this.content, this.resource_ref_model_id.model, this.res_id,
             )
-            this.dynamic_content = content
+            this.dynamic_content = this._edit_expression(content)
 
     def _get_proper_default_value(self):
         self.ensure_one()
         if not self.default_value:
             return "''"
         return "'{}'".format(self.default_value)
+
+    def _edit_expression(self, content):
+        """ Edit html with custom expressions"""
+        self.ensure_one()
+        for expression, replacement in POST_RENDERING_EXPRESSIONS.items():
+            if not content.find(expression):
+                continue
+            content = content.replace(expression, replacement)
+        return content
