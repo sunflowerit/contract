@@ -65,9 +65,14 @@ class AgreementSection(models.Model):
 
     def _get_proper_default_value(self):
         self.ensure_one()
-        if not self.default_value:
-            return "''"
-        return "'{}'".format(self.default_value)
+        value = "''"
+        if self.default_value:
+            if self.field_id.ttype in ("integer", "float"):
+                value = "{}"
+            else:
+                value = "'{}'"
+            value = value.format(self.default_value)
+        return value
 
     def _edit_expression(self, content):
         """ Edit html with custom expressions"""
