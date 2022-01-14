@@ -1,10 +1,42 @@
-from odoo import api, fields, models
+import copy
 
-# Store expressions for editing HTML
-# after rendering
-POST_RENDERING_EXPRESSIONS = {
-    "--page": "<p style='page-break-after:always;'/>",
-}
+from odoo import _, api, fields, models, tools
+from odoo.exceptions import UserError
+
+try:
+    from jinja2.sandbox import SandboxedEnvironment
+
+    mako_template_env = SandboxedEnvironment(
+        block_start_string="<%",
+        block_end_string="%>",
+        variable_start_string="${",
+        variable_end_string="}",
+        comment_start_string="<%doc>",
+        comment_end_string="</%doc>",
+        line_statement_prefix="%",
+        line_comment_prefix="##",
+        trim_blocks=True,  # do not output newline after blocks
+        autoescape=True,  # XML/HTML automatic escaping
+    )
+    # Let's keep these in case they are needed
+    # in the future
+    mako_template_env.globals.update(
+        {
+            "str": str,
+            "len": len,
+            "abs": abs,
+            "min": min,
+            "max": max,
+            "sum": sum,
+            "filter": filter,
+            "map": map,
+            "round": round,
+        }
+    )
+    mako_safe_template_env = copy.copy(mako_template_env)
+    mako_safe_template_env.autoescape = False
+except ImportError:
+    pass
 
 
 class AgreementSection(models.Model):
@@ -56,12 +88,11 @@ class AgreementSection(models.Model):
 
     # compute the dynamic content for jinja expression
     def _compute_dynamic_content(self):
-        MailTemplates = self.env["mail.template"]
         for this in self:
-            content = MailTemplates._render_template(
+            content = this._render_template(
                 this.content, this.resource_ref_model_id.model, this.res_id,
             )
-            this.dynamic_content = this._edit_expression(content)
+            this.dynamic_content = content
 
     def _get_proper_default_value(self):
         self.ensure_one()
@@ -74,11 +105,47 @@ class AgreementSection(models.Model):
             value = value.format(self.default_value)
         return value
 
-    def _edit_expression(self, content):
-        """ Edit html with custom expressions"""
-        self.ensure_one()
-        for expression, replacement in POST_RENDERING_EXPRESSIONS.items():
-            if not content.find(expression):
-                continue
-            content = content.replace(expression, replacement)
-        return content
+    @api.model
+    def _render_template(self, template_txt, model, res_ids, datas=False):
+        """
+        Render input provided by user, for report and preview
+        It is an edited version of mail.template._render_template()
+        """
+        if isinstance(res_ids, int):
+            res_ids = [res_ids]
+        if datas and not isinstance(datas, dict):
+            raise UserError(_("datas argument is not a proper dict"))
+        results = dict.fromkeys(res_ids, u"")
+        # try to load the template
+        try:
+            mako_env = mako_safe_template_env
+            template = mako_env.from_string(tools.ustr(template_txt))
+        except Exception:
+            return False
+        records = self.env[model].browse(
+            it for it in res_ids if it
+        )  # filter to avoid browsing [None]
+        res_to_rec = dict.fromkeys(res_ids, None)
+        for record in records:
+            res_to_rec[record.id] = record
+        # prepare template variables
+        variables = {
+            "ctx": self._context,  # context kw would clash with mako internals
+            "page": "<p style='page-break-after:always;'/>",
+        }
+        if datas:
+            variables.update(datas)
+        for res_id, record in res_to_rec.items():
+            variables["object"] = record
+            try:
+                render_result = template.render(variables)
+            except Exception as e:
+                raise UserError(
+                    _("Failed to render template %r using values %r")
+                    % (template, variables)
+                    + "\n\n{}: {}".format(type(e).__name__, str(e))
+                )
+            if render_result == u"False":
+                render_result = u""
+            results[res_id] = render_result
+        return results[res_ids[0]] or results
