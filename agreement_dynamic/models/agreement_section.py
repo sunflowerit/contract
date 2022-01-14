@@ -33,6 +33,7 @@ try:
             "filter": filter,
             "map": map,
             "round": round,
+            "page": "<p style='page-break-after:always;'/>",
         }
     )
     mako_safe_template_env = copy.copy(mako_template_env)
@@ -91,19 +92,25 @@ class AgreementSection(models.Model):
     # compute the dynamic content for jinja expression
     def _compute_dynamic_content(self):
         for this in self:
-            content = this._render_template(
-                this.content,
-                this.resource_ref_model_id.model,
-                this.res_id,
-                datas={"header": Header()},
-            )
+            try:
+                content = this._render_template(
+                    this.content,
+                    this.resource_ref_model_id.model,
+                    this.res_id,
+                    datas={"h1": Header(), "h2": Header(), "h3": Header()},
+                )
+            except Exception as e:
+                raise UserError(
+                    _("Failed to compute dynamic content. Reason: {}").format(str(e))
+                )
             this.dynamic_content = content
 
     def _get_proper_default_value(self):
         self.ensure_one()
-        value = "''"
+        is_num = self.field_id.ttype in ("integer", "float")
+        value = 0 if is_num else "''"
         if self.default_value:
-            if self.field_id.ttype in ("integer", "float"):
+            if is_num:
                 value = "{}"
             else:
                 value = "'{}'"
@@ -122,11 +129,8 @@ class AgreementSection(models.Model):
             raise UserError(_("datas argument is not a proper dict"))
         results = dict.fromkeys(res_ids, u"")
         # try to load the template
-        try:
-            mako_env = mako_safe_template_env
-            template = mako_env.from_string(tools.ustr(template_txt))
-        except Exception:
-            return False
+        mako_env = mako_safe_template_env
+        template = mako_env.from_string(tools.ustr(template_txt))
         records = self.env[model].browse(
             it for it in res_ids if it
         )  # filter to avoid browsing [None]
@@ -136,7 +140,6 @@ class AgreementSection(models.Model):
         # prepare template variables
         variables = {
             "ctx": self._context,  # context kw would clash with mako internals
-            "page": "<p style='page-break-after:always;'/>",
         }
         if datas:
             variables.update(datas)
