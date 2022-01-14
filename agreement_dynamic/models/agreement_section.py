@@ -3,6 +3,8 @@ import copy
 from odoo import _, api, fields, models, tools
 from odoo.exceptions import UserError
 
+from .header import Header
+
 try:
     from jinja2.sandbox import SandboxedEnvironment
 
@@ -90,7 +92,10 @@ class AgreementSection(models.Model):
     def _compute_dynamic_content(self):
         for this in self:
             content = this._render_template(
-                this.content, this.resource_ref_model_id.model, this.res_id,
+                this.content,
+                this.resource_ref_model_id.model,
+                this.res_id,
+                datas={"header": Header()},
             )
             this.dynamic_content = content
 
