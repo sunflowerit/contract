@@ -14,6 +14,7 @@ class Agreement(models.Model):
     )
     template_id = fields.Many2one("ir.ui.view", domain="[('type', '=', 'qweb')]")
     documentation = fields.Text(default="Some documentation blah blah", readonly=True)
+    alias_ids = fields.One2many("agreement.dynamic.alias", "agreement_id", copy=True)
 
     @api.model
     def _selection_target_model(self):
@@ -49,7 +50,7 @@ class Agreement(models.Model):
         )
         return "{}.{}".format(record.module, record.name)
 
-    section_ids = fields.One2many("agreement.section", "agreement_id")
+    section_ids = fields.One2many("agreement.section", "agreement_id", copy=True)
     section_count = fields.Integer(string="Sections", compute="_compute_section_count")
 
     @api.depends("section_ids")

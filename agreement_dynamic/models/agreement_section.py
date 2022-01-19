@@ -98,8 +98,9 @@ class AgreementSection(models.Model):
         h3 = Header()
         for this in self:
             try:
+                prerendered_content = this._prerender()
                 content = this._render_template(
-                    this.content,
+                    prerendered_content,
                     this.resource_ref_model_id.model,
                     this.res_id,
                     datas={"h1": h1, "h2": h2, "h3": h3},
@@ -121,6 +122,16 @@ class AgreementSection(models.Model):
                 value = "'{}'"
             value = value.format(self.default_value)
         return value
+
+    def _prerender(self):
+        """Substitute expressions using agreement.dynamic.alias records"""
+        self.ensure_one()
+        content = self.content
+        for alias in self.agreement_id.alias_ids:
+            if alias.expression_from not in content:
+                continue
+            content = content.replace(alias.expression_from, alias.expression_to)
+        return content
 
     @api.model
     def _render_template(self, template_txt, model, res_ids, datas=False):

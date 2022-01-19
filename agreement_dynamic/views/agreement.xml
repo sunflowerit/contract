@@ -74,6 +74,18 @@
                         </form>
                     </field>
                 </page>
+                <page name="aliases" string="Aliases">
+                    <field
+                        name="alias_ids"
+                        context="{'default_agreement_id': active_id}"
+                        widget="one2many_list"
+                    >
+                        <tree editable="bottom">
+                            <field name="expression_from" />
+                            <field name="expression_to" />
+                        </tree>
+                    </field>
+                </page>
                 <page name="help" string="Help">
                     <field name="documentation" />
                 </page>
