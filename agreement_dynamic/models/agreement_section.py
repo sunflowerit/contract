@@ -1,5 +1,7 @@
 import copy
 
+from jinja2.exceptions import TemplateSyntaxError
+
 from odoo import _, api, fields, models, tools
 from odoo.exceptions import UserError
 
@@ -91,15 +93,18 @@ class AgreementSection(models.Model):
 
     # compute the dynamic content for jinja expression
     def _compute_dynamic_content(self):
+        h1 = Header()
+        h2 = Header()
+        h3 = Header()
         for this in self:
             try:
                 content = this._render_template(
                     this.content,
                     this.resource_ref_model_id.model,
                     this.res_id,
-                    datas={"h1": Header(), "h2": Header(), "h3": Header()},
+                    datas={"h1": h1, "h2": h2, "h3": h3},
                 )
-            except Exception as e:
+            except (Exception, TemplateSyntaxError) as e:
                 raise UserError(
                     _("Failed to compute dynamic content. Reason: {}").format(str(e))
                 )

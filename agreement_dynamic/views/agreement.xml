@@ -7,16 +7,17 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='domain']" position="after">
                 <field name="resource_ref" />
-                <button
-                    name="%(agreement_dynamic_document_preview)d"
-                    string="Preview"
-                    type="action"
-                    class="oe_highlight"
-                    attrs="{'invisible':[('resource_ref', '=', False)]}"
-                />
+                <field name="template_id" />
             </xpath>
             <xpath expr="//notebook" position="inside">
                 <page name="dynamic_content" string="Dynamic content">
+                    <button
+                        name="%(agreement_dynamic_document_preview)d"
+                        string="Preview"
+                        type="action"
+                        class="oe_highlight"
+                        attrs="{'invisible':[('resource_ref', '=', False)]}"
+                    />
                     <field name="section_ids">
                         <tree decoration-bf="is_paragraph">
                             <field name="sequence" widget="handle" />
@@ -59,6 +60,9 @@
                             </sheet>
                         </form>
                     </field>
+                </page>
+                <page name="help" string="Help">
+                    <field name="documentation" />
                 </page>
             </xpath>
         </field>
