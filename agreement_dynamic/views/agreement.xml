@@ -12,7 +12,7 @@
                     name="action_view_section"
                     class="oe_stat_button"
                     icon="fa-file-text-o"
-                    attrs="{'invisible': [('section_count', '=', 0)]}"
+                    attrs="{'invisible': ['|',('section_count', '=', 0),('signature_date', '!=', False)]}"
                     groups="base.group_user"
                 >
                     <field name="section_count" widget="statinfo" string="Sections" />
@@ -21,6 +21,14 @@
             <xpath expr="//field[@name='domain']" position="after">
                 <field name="resource_ref" />
                 <field name="template_id" />
+                <button
+                    name="action_wizard_sign_agreement"
+                    string="Sign agreement"
+                    type="object"
+                    class="oe_highlight"
+                    attrs="{'invisible': [('signature_date', '!=', False)]}"
+                    context="{'default_agreement_id': active_id}"
+                />
             </xpath>
             <xpath expr="//notebook" position="inside">
                 <page name="dynamic_content" string="Dynamic content">
@@ -31,7 +39,10 @@
                         class="oe_highlight"
                         attrs="{'invisible':[('resource_ref', '=', False)]}"
                     />
-                    <field name="section_ids">
+                    <field
+                        name="section_ids"
+                        attrs="{'readonly':[('signature_date', '!=', False)]}"
+                    >
                         <tree decoration-bf="is_paragraph">
                             <field name="sequence" widget="handle" />
                             <field name="name" />

@@ -69,3 +69,12 @@ class Agreement(models.Model):
             "context": dict(self._context),
             "domain": [("id", "in", self.section_ids.ids)],
         }
+
+    def action_wizard_sign_agreement(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": "wizard.sign.agreement",
+            "view_mode": "form",
+            "target": "new",
+        }
