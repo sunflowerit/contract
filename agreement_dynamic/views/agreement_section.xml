@@ -1,13 +1,29 @@
 <?xml version="1.0" ?>
 <odoo>
+    <record id="view_agreement_section_search" model="ir.ui.view">
+        <field name="name">agreement.section.search</field>
+        <field name="type">search</field>
+        <field name="model">agreement.section</field>
+        <field name="arch" type="xml">
+            <search string="Sections">
+                <field name="name" />
+                <field name="agreement_id" />
+                <filter
+                    name="Paragraph"
+                    string="Paragraph"
+                    domain="[('is_paragraph','=','True')]"
+                />
+            </search>
+        </field>
+    </record>
     <record id="view_agreement_section_tree" model="ir.ui.view">
         <field name="name">agreement.section.tree</field>
         <field name="model">agreement.section</field>
         <field name="arch" type="xml">
-            <tree string="Agreement Section">
-                <field name="sequence"/>
+            <tree string="Agreement Section" create="false" edit="true">
+                <field name="sequence" />
                 <field name="name" />
-                <field name="agreement_id"/>
+                <field name="agreement_id" />
             </tree>
         </field>
     </record>
@@ -18,9 +34,9 @@
             <form string="Agreement Section">
                 <sheet>
                     <div class="oe_title">
-                        <label for="name" class="oe_edit_only" />
+                        <label for="name" />
                         <h1>
-                            <field name="name" />
+                            <field name="name" class="oe_edit_only" />
                         </h1>
                     </div>
                     <group>

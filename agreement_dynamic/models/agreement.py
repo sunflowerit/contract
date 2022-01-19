@@ -1,4 +1,4 @@
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 
 
 class Agreement(models.Model):
@@ -50,3 +50,21 @@ class Agreement(models.Model):
         return "{}.{}".format(record.module, record.name)
 
     section_ids = fields.One2many("agreement.section", "agreement_id")
+    section_count = fields.Integer(string="Sections", compute="_compute_section_count")
+
+    @api.depends("section_ids")
+    def _compute_section_count(self):
+        for this in self:
+            this.section_count = len(this.section_ids)
+
+    def action_view_section(self):
+        self.ensure_one()
+        return {
+            "name": _("Sections"),
+            "type": "ir.actions.act_window",
+            "res_model": "agreement.section",
+            "view_mode": "tree,form",
+            "target": "current",
+            "context": dict(self._context),
+            "domain": [("id", "in", self.section_ids.ids)],
+        }
