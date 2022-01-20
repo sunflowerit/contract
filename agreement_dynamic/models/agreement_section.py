@@ -4,6 +4,7 @@ from jinja2.exceptions import TemplateSyntaxError
 
 from odoo import _, api, fields, models, tools
 from odoo.exceptions import UserError
+from odoo.tools import safe_eval
 
 from .header import Header
 
@@ -70,6 +71,11 @@ class AgreementSection(models.Model):
     is_paragraph = fields.Boolean(
         default=True, string="Paragraph", help="To highlight lines"
     )
+    python_code = fields.Text(
+        string="Condition", help="Condition for rendering section",
+    )
+    python_code_preview = fields.Char("Preview", compute="_compute_condition")
+    show_in_report = fields.Boolean(compute="_compute_condition")
 
     @api.onchange("field_id", "sub_model_object_field_id", "default_value")
     def onchange_copyvalue(self):
@@ -91,6 +97,42 @@ class AgreementSection(models.Model):
                 self._get_proper_default_value(),
             )
 
+    @api.onchange("python_code")
+    def _compute_condition(self):
+        """Compute condition and preview"""
+        for this in self:
+            this.python_code_preview = this.show_in_report = False
+            if not this.python_code:
+                this.show_in_report = not this.python_code
+                continue
+            record = self.env[this.resource_ref_model_id.model].browse(this.res_id)
+            try:
+                # Check if there are any syntax errors etc
+                this.python_code_preview = safe_eval(
+                    this.python_code.strip(), {"object": record}
+                )
+            except Exception:
+                # and break right away
+                this.python_code_preview = "PYTHON ERROR"
+                continue
+            is_valid = bool(this.python_code_preview)
+            this.show_in_report = is_valid
+            if not is_valid:
+                # Preview is there, but condition is false
+                this.python_code_preview = "False"
+
+    def _get_proper_default_value(self):
+        self.ensure_one()
+        is_num = self.field_id.ttype in ("integer", "float")
+        value = 0 if is_num else "''"
+        if self.default_value:
+            if is_num:
+                value = "{}"
+            else:
+                value = "'{}'"
+            value = value.format(self.default_value)
+        return value
+
     # compute the dynamic content for jinja expression
     def _compute_dynamic_content(self):
         h1 = Header()
@@ -110,18 +152,6 @@ class AgreementSection(models.Model):
                     _("Failed to compute dynamic content. Reason: {}").format(str(e))
                 )
             this.dynamic_content = content
-
-    def _get_proper_default_value(self):
-        self.ensure_one()
-        is_num = self.field_id.ttype in ("integer", "float")
-        value = 0 if is_num else "''"
-        if self.default_value:
-            if is_num:
-                value = "{}"
-            else:
-                value = "'{}'"
-            value = value.format(self.default_value)
-        return value
 
     def _prerender(self):
         """Substitute expressions using agreement.dynamic.alias records"""

@@ -24,6 +24,9 @@
                 <field name="sequence" />
                 <field name="name" />
                 <field name="agreement_id" />
+                <field name="python_code" />
+                <field name="python_code_preview" />
+                <field name="show_in_report" />
             </tree>
         </field>
     </record>

@@ -46,6 +46,9 @@
                         <tree decoration-bf="is_paragraph">
                             <field name="sequence" widget="handle" />
                             <field name="name" />
+                            <field name="python_code" />
+                            <field name="python_code_preview" />
+                            <field name="show_in_report" />
                             <field name="is_paragraph" invisible="1" />
                         </tree>
                         <form>
@@ -79,6 +82,8 @@
                                         />
                                         <field name="default_value" />
                                         <field name="copyvalue" />
+                                        <field name="python_code" />
+                                        <field name="python_code_preview" />
                                     </group>
                                 </group>
                             </sheet>
