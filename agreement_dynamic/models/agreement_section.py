@@ -1,7 +1,5 @@
 import copy
 
-from jinja2.exceptions import TemplateSyntaxError
-
 from odoo import _, api, fields, models, tools
 from odoo.exceptions import UserError
 from odoo.tools import safe_eval
@@ -139,18 +137,13 @@ class AgreementSection(models.Model):
         h2 = Header()
         h3 = Header()
         for this in self:
-            try:
-                prerendered_content = this._prerender()
-                content = this._render_template(
-                    prerendered_content,
-                    this.resource_ref_model_id.model,
-                    this.res_id,
-                    datas={"h1": h1, "h2": h2, "h3": h3},
-                )
-            except (Exception, TemplateSyntaxError) as e:
-                raise UserError(
-                    _("Failed to compute dynamic content. Reason: {}").format(str(e))
-                )
+            prerendered_content = this._prerender()
+            content = this._render_template(
+                prerendered_content,
+                this.resource_ref_model_id.model,
+                this.res_id,
+                datas={"h1": h1, "h2": h2, "h3": h3},
+            )
             this.dynamic_content = content
 
     def _prerender(self):
@@ -203,3 +196,18 @@ class AgreementSection(models.Model):
                 render_result = u""
             results[res_id] = render_result
         return results[res_ids[0]] or results
+
+    def write(self, values):
+        res = super().write(values)
+        if "content" in values:
+            for this in self:
+                try:
+                    this.dynamic_content
+                except Exception as e:
+                    raise UserError(
+                        _(
+                            "Failed to compute dynamic content"
+                            " for section {}. Reason: {}"
+                        ).format(this.name or this.id, str(e))
+                    )
+        return res
