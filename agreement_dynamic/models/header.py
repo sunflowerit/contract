@@ -1,6 +1,9 @@
 class Header:
-    def __init__(self):
+    def __init__(self, child=False, parent=False):
         self.value = 0
+        self.child = child
+        if parent:
+            parent.child = self
 
     @property
     def next(self):
@@ -16,4 +19,5 @@ class Header:
     @property
     def reset(self):
         self.value = 0
+        self.child.reset
         return self.value

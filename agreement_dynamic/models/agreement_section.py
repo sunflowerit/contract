@@ -133,16 +133,15 @@ class AgreementSection(models.Model):
 
     # compute the dynamic content for jinja expression
     def _compute_dynamic_content(self):
-        h1 = Header()
-        h2 = Header()
-        h3 = Header()
+        # a parent with two children
+        h = Header(child=Header(child=Header()))
         for this in self:
             prerendered_content = this._prerender()
             content = this._render_template(
                 prerendered_content,
                 this.resource_ref_model_id.model,
                 this.res_id,
-                datas={"h1": h1, "h2": h2, "h3": h3},
+                datas={"h": h},
             )
             this.dynamic_content = content
 
