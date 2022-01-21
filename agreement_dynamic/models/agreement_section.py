@@ -103,15 +103,17 @@ class AgreementSection(models.Model):
             if not this.python_code:
                 this.show_in_report = not this.python_code
                 continue
+            if not (this.resource_ref_model_id and this.res_id):
+                continue
             record = self.env[this.resource_ref_model_id.model].browse(this.res_id)
             try:
                 # Check if there are any syntax errors etc
                 this.python_code_preview = safe_eval(
                     this.python_code.strip(), {"object": record}
                 )
-            except Exception:
-                # and break right away
-                this.python_code_preview = "PYTHON ERROR"
+            except Exception as e:
+                # and show debug info
+                this.python_code_preview = str(e)
                 continue
             is_valid = bool(this.python_code_preview)
             this.show_in_report = is_valid

@@ -17,5 +17,6 @@
         "views/agreement_section.xml",
         "wizards/wizard_sign_agreement.xml",
     ],
+    "demo": ["demo/demo.xml"],
     "installable": True,
 }
