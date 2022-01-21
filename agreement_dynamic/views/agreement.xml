@@ -32,13 +32,22 @@
             </xpath>
             <xpath expr="//notebook" position="inside">
                 <page name="dynamic_content" string="Dynamic content">
-                    <button
-                        name="%(agreement_dynamic_document_preview)d"
-                        string="Preview"
-                        type="action"
-                        class="oe_highlight"
-                        attrs="{'invisible':[('resource_ref', '=', False)]}"
-                    />
+                    <group name="content_buttons" col="1">
+                        <button
+                            name="action_validate_content"
+                            string="Validate"
+                            type="object"
+                            class="oe_highlight"
+                            attrs="{'invisible':[('resource_ref', '=', False)]}"
+                        />
+                        <button
+                            name="%(agreement_dynamic_document_preview)d"
+                            string="Preview"
+                            type="action"
+                            class="oe_highlight"
+                            attrs="{'invisible':[('resource_ref', '=', False)]}"
+                        />
+                    </group>
                     <field
                         name="section_ids"
                         attrs="{'readonly':[('signature_date', '!=', False)]}"

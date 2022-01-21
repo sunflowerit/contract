@@ -1,4 +1,5 @@
 from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 
 class Agreement(models.Model):
@@ -78,3 +79,18 @@ class Agreement(models.Model):
             "view_mode": "form",
             "target": "new",
         }
+
+    def action_validate_content(self):
+        self.ensure_one()
+        # If nothing happens, then
+        # dynamic.content is renderable
+        for this in self.section_ids:
+            try:
+                this.dynamic_content
+            except Exception as e:
+                raise UserError(
+                    _(
+                        "Failed to compute dynamic content"
+                        " for section {}. Reason: {}"
+                    ).format(this.name or this.id, str(e))
+                )

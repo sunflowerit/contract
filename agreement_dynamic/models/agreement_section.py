@@ -197,18 +197,3 @@ class AgreementSection(models.Model):
                 render_result = u""
             results[res_id] = render_result
         return results[res_ids[0]] or results
-
-    def write(self, values):
-        res = super().write(values)
-        if "content" in values:
-            for this in self:
-                try:
-                    this.dynamic_content
-                except Exception as e:
-                    raise UserError(
-                        _(
-                            "Failed to compute dynamic content"
-                            " for section {}. Reason: {}"
-                        ).format(this.name or this.id, str(e))
-                    )
-        return res
