@@ -6,16 +6,22 @@ class Agreement(models.Model):
     _inherit = "agreement"
 
     model_id = fields.Many2one("ir.model")
-    res_id = fields.Integer(string="Record ID")
+    # Inform the user about configured model_id
+    # in template
+    model_name = fields.Char(related="model_id.name")
+    res_id = fields.Integer(string="Target Record")
     resource_ref = fields.Reference(
         string="Record reference",
         selection="_selection_target_model",
         compute="_compute_resource_ref",
         inverse="_inverse_resource_ref",
     )
-    template_id = fields.Many2one("ir.ui.view", domain="[('type', '=', 'qweb')]")
+    wrapper_report_id = fields.Many2one("ir.ui.view", domain="[('type', '=', 'qweb')]")
+    template_id = fields.Many2one(
+        "agreement", domain="[('is_template', '=', True)]", copy=False
+    )
     documentation = fields.Text(default="Some documentation blah blah", readonly=True)
-    alias_ids = fields.One2many("agreement.dynamic.alias", "agreement_id", copy=True)
+    signature_date = fields.Date(string="Lock Date", copy=False)
 
     @api.model
     def _selection_target_model(self):
@@ -42,11 +48,11 @@ class Agreement(models.Model):
 
     def get_template_xml_id(self):
         self.ensure_one()
-        if not self.template_id:
+        if not self.wrapper_report_id:
             # return a default
             return "web.external_layout"
         record = self.env["ir.model.data"].search(
-            [("model", "=", "ir.ui.view"), ("res_id", "=", self.template_id.id)],
+            [("model", "=", "ir.ui.view"), ("res_id", "=", self.wrapper_report_id.id)],
             limit=1,
         )
         return "{}.{}".format(record.module, record.name)
@@ -85,6 +91,8 @@ class Agreement(models.Model):
         # If nothing happens, then
         # dynamic.content is renderable
         for this in self.section_ids:
+            if not this.show_in_report:
+                continue
             try:
                 this.dynamic_content
             except Exception as e:
@@ -94,3 +102,28 @@ class Agreement(models.Model):
                         " for section {}. Reason: {}"
                     ).format(this.name or this.id, str(e))
                 )
+
+    # Override create() and write() to keep
+    # resource_ref always the same with template
+    # even if template.resource_ref=False
+    @api.model
+    def create(self, values):
+        records = super().create(values)
+        for this in records:
+            if this.template_id.resource_ref:
+                this.resource_ref = this.template_id.resource_ref
+        return records
+
+    def write(self, values):
+        res = super().write(values)
+        for this in self:
+            if "template_id" in values:
+                # if in an agreement we set a template
+                this.model_id = this.template_id.model_id
+            if "model_id" in values and this.is_template:
+                # when we edit the model in template
+                # find all agreements and set this up
+                this.env[this._name].search([("template_id", "=", this.id)]).write(
+                    {"model_id": this.model_id.id}
+                )
+        return res

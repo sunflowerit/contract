@@ -151,7 +151,9 @@ class AgreementSection(models.Model):
         """Substitute expressions using agreement.dynamic.alias records"""
         self.ensure_one()
         content = self.content
-        for alias in self.agreement_id.alias_ids:
+        for alias in self.env["agreement.dynamic.alias"].search(
+            [("is_active", "=", True)]
+        ):
             if alias.expression_from not in content:
                 continue
             content = content.replace(alias.expression_from, alias.expression_to)

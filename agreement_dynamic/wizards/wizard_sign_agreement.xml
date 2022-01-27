@@ -4,14 +4,14 @@
         <field name="name">wizard.sign.agreement.form.view</field>
         <field name="model">wizard.sign.agreement</field>
         <field name="arch" type="xml">
-            <form string="Sign off">
+            <form string="Lock agreement">
                 <group>
                     <field name="signature_date" class="oe_inline" />
                 </group>
                 <footer>
                     <button
                         name="action_sign_agreement"
-                        string="Sign"
+                        string="Lock"
                         type="object"
                         class="oe_highlight"
                     />

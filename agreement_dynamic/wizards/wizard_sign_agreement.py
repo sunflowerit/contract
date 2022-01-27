@@ -6,7 +6,9 @@ class WizardSignAgreement(models.TransientModel):
     _description = "Provide signature date for agreement"
 
     agreement_id = fields.Many2one("agreement", "Agreement")
-    signature_date = fields.Date(default=fields.Date.today(), required=True)
+    signature_date = fields.Date(
+        string="Lock Date", default=fields.Date.today(), required=True
+    )
 
     def action_sign_agreement(self):
         """Sign the agreement on given date"""

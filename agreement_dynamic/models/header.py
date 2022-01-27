@@ -19,5 +19,6 @@ class Header:
     @property
     def reset(self):
         self.value = 0
-        self.child.reset
+        if self.child:
+            value = self.child.reset
         return self.value
