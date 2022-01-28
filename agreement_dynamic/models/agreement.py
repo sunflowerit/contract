@@ -76,7 +76,10 @@ class Agreement(models.Model):
             "res_model": "agreement.section",
             "view_mode": "tree,form",
             "target": "current",
-            "context": dict(self._context),
+            "context": {
+                "default_agreement_id": self.id,
+                "is_locked": bool(self.signature_date),
+            },
             "domain": [("id", "in", self.section_ids.ids)],
         }
 

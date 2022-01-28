@@ -1,5 +1,7 @@
 import copy
 
+from lxml import etree
+
 from odoo import _, api, fields, models, tools
 from odoo.exceptions import UserError
 from odoo.tools import safe_eval
@@ -48,6 +50,27 @@ class AgreementSection(models.Model):
     _description = "Agreement Section"
 
     _order = "sequence"
+
+    @api.model
+    def fields_view_get(
+        self, view_id=None, view_type="form", toolbar=False, submenu=False
+    ):
+        # Don't allow any cud operations for locked sections
+        result = super(AgreementSection, self).fields_view_get(
+            view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu
+        )
+        view_id_tree = self.env.ref("agreement_dynamic.view_agreement_section_tree").id
+        view_id_form = self.env.ref("agreement_dynamic.view_agreement_section_form").id
+        if (
+            all([view_id_tree == result["view_id"], view_type == "tree"])
+            or all([view_id_form == result["view_id"], view_type == "form"])
+        ) and self.env.context.get("is_locked"):
+            arch = etree.fromstring(result["arch"])
+            arch.attrib["create"] = "false"
+            arch.attrib["edit"] = "false"
+            arch.attrib["delete"] = "false"
+            result["arch"] = etree.tostring(arch)
+        return result
 
     name = fields.Char("Name", required=True)
     sequence = fields.Integer("Sequence", default=10)
@@ -214,3 +237,18 @@ class AgreementSection(models.Model):
                 render_result = u""
             results[res_id] = render_result
         return results[res_ids[0]] or results
+
+    # Don't create/write sections for locked agreements
+    @api.model
+    def create(self, values):
+        records = super().create(values)
+        for this in records:
+            if this.agreement_id.signature_date:
+                raise UserError(_("You cannot create a section for a locked agreement"))
+        return records
+
+    def write(self, values):
+        for this in self:
+            if this.agreement_id.signature_date:
+                raise UserError(_("You cannot edit a section for a locked agreement"))
+        return super().write(values)
