@@ -21,7 +21,7 @@
         <field name="name">A paragraph</field>
         <field name="is_paragraph">True</field>
         <field name="content">Some Black content</field>
-        <field name="python_code">object.name.startswith("D")</field>
+        <field name="condition_python">object.name.startswith("D")</field>
         <field name="agreement_id" ref="demo_agreement_1" />
     </record>
     <record id="demo_section_2" model="agreement.section">
@@ -48,7 +48,7 @@
             ${page}
             [H1-].[H2].[H3] #0.0.0
         </field>
-        <field name="python_code">object.name.endswith("r")</field>
+        <field name="condition_python">object.name.endswith("r")</field>
         <field name="agreement_id" ref="demo_agreement_1" />
     </record>
     <!-- Aliases -->

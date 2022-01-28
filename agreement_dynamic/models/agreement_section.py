@@ -69,11 +69,15 @@ class AgreementSection(models.Model):
     is_paragraph = fields.Boolean(
         default=True, string="Paragraph", help="To highlight lines"
     )
-    python_code = fields.Text(
-        string="Condition", help="Condition for rendering section",
+    condition_python = fields.Text(
+        string="Python Condition", help="Condition for rendering section",
     )
-    python_code_preview = fields.Char("Preview", compute="_compute_condition")
+    condition_domain = fields.Char(string="Domain Condition", default="[]")
+    condition_python_preview = fields.Char("Preview", compute="_compute_condition")
     show_in_report = fields.Boolean(compute="_compute_condition")
+    model_id_model = fields.Char(
+        string="Model _description", related="agreement_id.model_id.model"
+    )
 
     @api.onchange("field_id", "sub_model_object_field_id", "default_value")
     def onchange_copyvalue(self):
@@ -95,31 +99,42 @@ class AgreementSection(models.Model):
                 self._get_proper_default_value(),
             )
 
-    @api.onchange("python_code")
+    @api.onchange("condition_python")
     def _compute_condition(self):
         """Compute condition and preview"""
         for this in self:
-            this.python_code_preview = this.show_in_report = False
-            if not this.python_code:
-                this.show_in_report = not this.python_code
+            this.condition_python_preview = this.show_in_report = False
+            if not this.resource_ref_model_id:
                 continue
-            if not (this.resource_ref_model_id and this.res_id):
+            if not this.res_id:
                 continue
-            record = self.env[this.resource_ref_model_id.model].browse(this.res_id)
+            if not this.condition_python and this.condition_domain == "[]":
+                this.show_in_report = True
+                continue
+            # Use condition_domain here
+            condition_domain = safe_eval(this.condition_domain)
+            record = self.env[this.resource_ref_model_id.model].search(
+                condition_domain, limit=1
+            )
+            if not record:
+                continue
+            if not this.condition_python:
+                this.show_in_report = True
+                continue
             try:
                 # Check if there are any syntax errors etc
-                this.python_code_preview = safe_eval(
-                    this.python_code.strip(), {"object": record}
+                this.condition_python_preview = safe_eval(
+                    this.condition_python.strip(), {"object": record}
                 )
             except Exception as e:
                 # and show debug info
-                this.python_code_preview = str(e)
+                this.condition_python_preview = str(e)
                 continue
-            is_valid = bool(this.python_code_preview)
+            is_valid = bool(this.condition_python_preview)
             this.show_in_report = is_valid
             if not is_valid:
                 # Preview is there, but condition is false
-                this.python_code_preview = "False"
+                this.condition_python_preview = "False"
 
     def _get_proper_default_value(self):
         self.ensure_one()

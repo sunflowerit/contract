@@ -22,6 +22,9 @@ class Agreement(models.Model):
     )
     documentation = fields.Text(default="Some documentation blah blah", readonly=True)
     signature_date = fields.Date(string="Lock Date", copy=False)
+    condition_domain_global = fields.Char(
+        string="Global domain condition", default="[]"
+    )
 
     @api.model
     def _selection_target_model(self):
