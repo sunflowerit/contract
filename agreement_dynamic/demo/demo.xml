@@ -29,24 +29,31 @@
         <field name="is_paragraph">False</field>
         <field name="content">
             ${object.name}
+            [H1] # 1
             ${page}
-            [H1].[H2].[H3] #0.0.0
+            [H2] # 1.1
             ${page}
-            [H1+].[H2].[H3] #1.0.0
+            [H2] # 1.2
             ${page}
-            [H1+].[H2].[H3] #2.0.0
+            [H2] # 1.3
+
+            [H3] # 1.3.1
             ${page}
-            [H1+].[H2].[H3+] #3.0.1
+            [H3] # 1.3.2
             ${page}
-            [H1r].[H2].[H3] #0.0.0
+            [H3] # 1.3.3
             ${page}
-            [H1+].[H2].[H3+] #1.0.1
+            [H3] # 1.3.4
             ${page}
-            [H1].[H2+].[H3] #1.1.1
+            [H1] # 2
             ${page}
-            [H1].[H2r].[H3] #1.0.0
+            [H2] # 2.1
             ${page}
-            [H1-].[H2].[H3] #0.0.0
+            [H2] # 2.2
+            ${page}
+            [H3] # 2.2.1
+            ${page}
+            [H1val].[H2val].[H3val] # 2.2.1
         </field>
         <field name="condition_python">object.name.endswith("r")</field>
         <field name="agreement_id" ref="demo_agreement_1" />

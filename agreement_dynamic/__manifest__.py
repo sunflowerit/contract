@@ -9,7 +9,7 @@
     "website": "https://sunflowerweb.nl",
     "license": "AGPL-3",
     "summary": "Dynamic Agreement Builder",
-    "depends": ["agreement", "hr"],
+    "depends": ["agreement", "hr", "web_boolean_button"],
     "data": [
         "security/res_groups.xml",
         "security/ir_rule.xml",

@@ -40,20 +40,42 @@
                     <div class="oe_title">
                         <label for="name" />
                         <h1>
-                            <field name="name" class="oe_edit_only" />
+                            <field name="name" />
                         </h1>
                     </div>
-                    <group>
-                        <group>
-                            <field name="agreement_id" readonly="1" />
+                    <div>
+                        <label for="agreement_id" />
+                        <field name="agreement_id" readonly="1" />
+                    </div>
+                    <group name="main">
+                        <group name="left">
+                            <notebook>
+                                <page name="content" string="Content">
+                                    <field name="content" widget="html" />
+                                    <div>
+                                        <label for="is_paragraph" />
+                                        <field name="is_paragraph" />
+                                    </div>
+                                </page>
+                                <page name="condition" string="Conditions">
+                                    <group>
+                                        <field name="condition_python" />
+                                        <field name="model_id_model" invisible="1" />
+                                        <field
+                                            name="condition_domain"
+                                            widget="domain"
+                                            options="{'model': 'model_id_model', 'in_dialog': True}"
+                                        />
+                                        <field name="condition_python_preview" />
+                                        <div>
+                                            <span>Placeholder for help</span>
+                                        </div>
+                                    </group>
+                                </page>
+                            </notebook>
                         </group>
-                        <group>
+                        <group name="right">
                             <field name="sequence" />
-                        </group>
-                    </group>
-                    <field name="content" widget="html" />
-                    <group class="oe_edit_only">
-                        <group>
                             <field name="resource_ref_model_id" />
                             <field
                                 name="field_id"
@@ -72,14 +94,6 @@
                             />
                             <field name="default_value" />
                             <field name="copyvalue" />
-                            <field name="condition_python" />
-                            <field name="model_id_model" invisible="1" />
-                            <field
-                                name="condition_domain"
-                                widget="domain"
-                                options="{'model': 'model_id_model', 'in_dialog': True}"
-                            />
-                            <field name="condition_python_preview" />
                         </group>
                     </group>
                 </sheet>

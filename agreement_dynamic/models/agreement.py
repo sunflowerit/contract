@@ -9,22 +9,29 @@ class Agreement(models.Model):
     # Inform the user about configured model_id
     # in template
     model_name = fields.Char(related="model_id.name")
-    res_id = fields.Integer(string="Target Record")
+    res_id = fields.Integer()
     resource_ref = fields.Reference(
-        string="Record reference",
+        string="Target record",
         selection="_selection_target_model",
         compute="_compute_resource_ref",
         inverse="_inverse_resource_ref",
     )
     wrapper_report_id = fields.Many2one("ir.ui.view", domain="[('type', '=', 'qweb')]")
     template_id = fields.Many2one(
-        "agreement", domain="[('is_template', '=', True)]", copy=False
+        "agreement",
+        domain="[('is_template', '=', True)]",
+        copy=False,
+        default=lambda self: self.env.company.external_report_layout_id,
+    )
+    agreement_ids = fields.One2many(
+        "agreement", "template_id", domain="[('is_template', '=', False)]", copy=False
     )
     documentation = fields.Text(default="Some documentation blah blah", readonly=True)
     signature_date = fields.Date(string="Lock Date", copy=False)
     condition_domain_global = fields.Char(
         string="Global domain condition", default="[]"
     )
+    active = fields.Boolean(default=True)
 
     @api.model
     def _selection_target_model(self):
@@ -34,8 +41,13 @@ class Agreement(models.Model):
     @api.depends("model_id", "res_id")
     def _compute_resource_ref(self):
         for this in self:
-            if this.model_id and this.res_id:
-                this.resource_ref = "{},{}".format(this.model_id.model, this.res_id)
+            if this.model_id:
+                # we need to give a default to id part of resource_ref
+                # otherwise it is not editable
+                this.resource_ref = "{},{}".format(
+                    this.model_id.model,
+                    this.res_id or self.env[this.model_id.model].search([], limit=1).id,
+                )
             else:
                 this.resource_ref = False
 
@@ -62,11 +74,19 @@ class Agreement(models.Model):
 
     section_ids = fields.One2many("agreement.section", "agreement_id", copy=True)
     section_count = fields.Integer(string="Sections", compute="_compute_section_count")
+    is_content_validated = fields.Boolean(
+        compute="_compute_is_content_validated", store=True
+    )
 
     @api.depends("section_ids")
     def _compute_section_count(self):
         for this in self:
             this.section_count = len(this.section_ids)
+
+    @api.depends("section_ids.content")
+    def _compute_is_content_validated(self):
+        for this in self:
+            this.is_content_validated = False
 
     def action_view_section(self):
         self.ensure_one()
@@ -94,8 +114,8 @@ class Agreement(models.Model):
 
     def action_validate_content(self):
         self.ensure_one()
-        # If nothing happens, then
-        # dynamic.content is renderable
+        # Force user to validate
+        # before previewing
         for this in self.section_ids:
             if not this.show_in_report:
                 continue
@@ -108,6 +128,11 @@ class Agreement(models.Model):
                         " for section {}. Reason: {}"
                     ).format(this.name or this.id, str(e))
                 )
+        self.is_content_validated = True
+
+    def action_toggle_active(self):
+        self.ensure_one()
+        self.active = not self.active
 
     # Override create() and write() to keep
     # resource_ref always the same with template
@@ -118,18 +143,48 @@ class Agreement(models.Model):
         for this in records:
             if this.template_id.resource_ref:
                 this.resource_ref = this.template_id.resource_ref
+                # Give a default to wrapper_report_id when
+                # user sets template_id
+                this.wrapper_report_id = this._set_wrapper_report_id(this.template_id)
         return records
 
     def write(self, values):
-        res = super().write(values)
-        for this in self:
-            if "template_id" in values:
-                # if in an agreement we set a template
-                this.model_id = this.template_id.model_id
-            if "model_id" in values and this.is_template:
-                # when we edit the model in template
-                # find all agreements and set this up
-                this.env[this._name].search([("template_id", "=", this.id)]).write(
-                    {"model_id": this.model_id.id}
+        # If the template is changed back to a non-template
+        # (eg is_template is set to False),
+        # and the template already has children, then disallow.
+        if all(
+            [
+                self.agreement_ids,
+                self.is_template,
+                "is_template" in values,
+                values.get("is_template") is False,
+            ]
+        ):
+            raise UserError(
+                _(
+                    "You cannot switch this template because "
+                    "it has agreements connected to it"
                 )
-        return res
+            )
+        # If the model is changed while
+        # the template already has children, disallow;
+        if all(
+            [
+                self.agreement_ids,
+                "model_id" in values,
+                self.model_id != self.env["ir.model"].browse(values.get("model_id")),
+            ]
+        ):
+            raise UserError(_("You cannot change model for this agreement"))
+        if "template_id" in values and values.get("template_id"):
+            # if in an agreement we set a template
+            template = self.browse(values.get("template_id"))
+            self.resource_ref = template.resource_ref
+            # Give a default to wrapper_report_id when
+            # user sets template_id
+            self.wrapper_report_id = self._set_wrapper_report_id(template)
+        return super().write(values)
+
+    def _set_wrapper_report_id(self, template):
+        self.ensure_one()
+        return template.wrapper_report_id or self.env.company.external_report_layout_id

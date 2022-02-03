@@ -127,27 +127,27 @@ class AgreementSection(models.Model):
         """Compute condition and preview"""
         for this in self:
             this.condition_python_preview = this.show_in_report = False
+            condition_python = (
+                this.condition_python.strip() if this.condition_python else ""
+            )
+            condition_domain = (
+                this.condition_domain.strip() if this.condition_domain else "[]"
+            )
             if not this.resource_ref_model_id:
                 continue
             if not this.res_id:
                 continue
-            if not this.condition_python and this.condition_domain == "[]":
-                this.show_in_report = True
-                continue
-            # Use condition_domain here
-            condition_domain = safe_eval(this.condition_domain)
-            record = self.env[this.resource_ref_model_id.model].search(
-                condition_domain, limit=1
-            )
+            # search for a record for this.res_id and this.model_id
+            record = this.resource_ref.filtered_domain(safe_eval(condition_domain))
             if not record:
                 continue
-            if not this.condition_python:
+            if not condition_python:
                 this.show_in_report = True
                 continue
             try:
                 # Check if there are any syntax errors etc
                 this.condition_python_preview = safe_eval(
-                    this.condition_python.strip(), {"object": record}
+                    condition_python, {"object": record}
                 )
             except Exception as e:
                 # and show debug info
@@ -174,7 +174,7 @@ class AgreementSection(models.Model):
     # compute the dynamic content for jinja expression
     def _compute_dynamic_content(self):
         # a parent with two children
-        h = Header(child=Header(child=Header()))
+        h = self._get_header_object()
         for this in self:
             prerendered_content = this._prerender()
             content = this._render_template(
@@ -184,6 +184,10 @@ class AgreementSection(models.Model):
                 datas={"h": h},
             )
             this.dynamic_content = content
+
+    def _get_header_object(self):
+        h = Header(child=Header(child=Header()))
+        return h
 
     def _prerender(self):
         """Substitute expressions using agreement.dynamic.alias records"""
