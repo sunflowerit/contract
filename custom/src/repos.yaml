@@ -10,13 +10,13 @@ odoo:
 
 OCA/web:
   defaults:
-    depth: $DEPTH_DEFAULT
+    depth: $DEPTH_MERGE
   remotes:
     origin: https://github.com/OCA/web.git
   target: origin $ODOO_VERSION
   merges:
     - origin $ODOO_VERSION
-
+    - origin refs/pull/1822/head
 OCA/contract:
   defaults:
     depth: $DEPTH_MERGE
@@ -26,4 +26,5 @@ OCA/contract:
   target: origin $ODOO_VERSION
   merges:
     - origin $ODOO_VERSION
-    - sfit 13.0-agreement-dynamic
+    #- sfit 13.0-agreement-dynamic
+    - sfit refs/pull/1/head
