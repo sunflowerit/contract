@@ -74,19 +74,11 @@ class Agreement(models.Model):
 
     section_ids = fields.One2many("agreement.section", "agreement_id", copy=True)
     section_count = fields.Integer(string="Sections", compute="_compute_section_count")
-    is_content_validated = fields.Boolean(
-        compute="_compute_is_content_validated", store=True
-    )
 
     @api.depends("section_ids")
     def _compute_section_count(self):
         for this in self:
             this.section_count = len(this.section_ids)
-
-    @api.depends("section_ids.content")
-    def _compute_is_content_validated(self):
-        for this in self:
-            this.is_content_validated = False
 
     def action_view_section(self):
         self.ensure_one()
@@ -112,23 +104,13 @@ class Agreement(models.Model):
             "target": "new",
         }
 
-    def action_validate_content(self):
+    def action_preview_content(self):
         self.ensure_one()
-        # Force user to validate
-        # before previewing
-        for this in self.section_ids:
-            if not this.show_in_report:
-                continue
-            try:
-                this.dynamic_content
-            except Exception as e:
-                raise UserError(
-                    _(
-                        "Failed to compute dynamic content"
-                        " for section {}. Reason: {}"
-                    ).format(this.name or this.id, str(e))
-                )
-        self.is_content_validated = True
+        self._validate_content()
+        action = self.env.ref(
+            "agreement_dynamic.agreement_dynamic_document_preview"
+        ).read([])[0]
+        return action
 
     def action_toggle_active(self):
         self.ensure_one()
@@ -188,3 +170,20 @@ class Agreement(models.Model):
     def _set_wrapper_report_id(self, template):
         self.ensure_one()
         return template.wrapper_report_id or self.env.company.external_report_layout_id
+
+    def _validate_content(self):
+        self.ensure_one()
+        # Force user to validate
+        # before previewing
+        for this in self.section_ids:
+            if not this.show_in_report:
+                continue
+            try:
+                this.dynamic_content
+            except Exception as e:
+                raise UserError(
+                    _(
+                        "Failed to compute dynamic content"
+                        " for section {}. Reason: {}"
+                    ).format(this.name or this.id, str(e))
+                )

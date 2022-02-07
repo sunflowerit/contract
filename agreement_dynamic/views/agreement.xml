@@ -110,20 +110,12 @@
                             />
                         </group>
                         <group name="content_buttons" col="1">
-                            <field name="is_content_validated" invisible="1" />
                             <button
-                                name="action_validate_content"
-                                string="Validate"
+                                name="action_preview_content"
+                                string="Preview"
                                 type="object"
                                 class="oe_highlight"
-                                attrs="{'invisible':['|',('resource_ref', '=', False),('signature_date', '!=', False)]}"
-                            />
-                            <button
-                                name="%(agreement_dynamic_document_preview)d"
-                                string="Preview"
-                                type="action"
-                                class="oe_highlight"
-                                attrs="{'invisible':['|',('resource_ref', '=', False),('is_content_validated','=', False)]}"
+                                attrs="{'invisible':[('resource_ref', '=', False)]}"
                             />
                         </group>
                     </group>
