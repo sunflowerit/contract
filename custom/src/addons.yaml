@@ -10,3 +10,10 @@ OCA/web:
 
 OCA/contract:
     - "*"
+
+OCA/reporting-engine:
+    - "*"
+
+OCA/hr:
+    - "*"
+

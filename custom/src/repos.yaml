@@ -22,9 +22,28 @@ OCA/contract:
     depth: $DEPTH_MERGE
   remotes:
     origin: https://github.com/OCA/contract.git
-    sfit: https://github.com/sunflowerit/contract.git
   target: origin $ODOO_VERSION
   merges:
     - origin $ODOO_VERSION
-    #- sfit 13.0-agreement-dynamic
+OCA/reporting-engine:
+  defaults:
+    depth: $DEPTH_MERGE
+  remotes:
+    origin: https://github.com/OCA/reporting-engine.git
+    sfit: https://github.com/sunflowerit/reporting-engine.git
+  target: origin $ODOO_VERSION
+  merges: 
+    - origin $ODOO_VERSION
     - sfit refs/pull/1/head
+
+OCA/hr:
+ defaults:
+   depth: $DEPTH_MERGE
+ remotes:
+    origin: https://github.com/OCA/hr.git
+    sfit: https://github.com/sunflowerit/hr.git
+ target: origin $ODOO_VERSION
+ merges:
+  - origin $ODOO_VERSION
+  - sfit 13.0-hr_contract_report_dynamic
+
